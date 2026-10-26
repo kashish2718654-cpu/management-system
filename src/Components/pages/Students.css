@@ -1,0 +1,290 @@
+
+.students-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #f5f7fb;
+  color: #1e293b;
+}
+
+.students-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.students-eyebrow {
+  margin-bottom: 6px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.students-heading h2 {
+  margin-bottom: 8px;
+  color: #172554;
+  font-size: 28px;
+  font-weight: 750;
+}
+
+.add-student-button {
+  padding: 10px 16px;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+
+.student-stat-card,
+.students-table-card {
+  border: 1px solid #e8edf5;
+  border-radius: 14px;
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.035);
+}
+
+.student-stat-card .card-body {
+  position: relative;
+  padding: 22px;
+}
+
+.student-stat-card p {
+  margin: 14px 0 4px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.student-stat-card h3 {
+  margin: 0;
+  color: #172554;
+  font-size: 27px;
+  font-weight: 750;
+}
+
+.student-stat-icon {
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.student-stat-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.student-stat-icon.green {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.student-stat-icon.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.students-table-card .card-body {
+  padding: 22px;
+}
+
+.students-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.students-toolbar h5 {
+  margin-bottom: 6px;
+  color: #172554;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.students-toolbar p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.students-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.student-search {
+  width: 260px;
+}
+
+.student-search .input-group-text {
+  background: #fff;
+  color: #64748b;
+}
+
+.student-search .form-control,
+.student-search .input-group-text,
+.fee-filter {
+  border-color: #e2e8f0;
+}
+
+.fee-filter {
+  width: 130px;
+}
+
+.student-search .form-control:focus,
+.fee-filter:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.students-table {
+  min-width: 1000px;
+  font-size: 13px;
+}
+
+.students-table thead th {
+  padding: 14px 12px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.students-table tbody td {
+  padding: 15px 12px;
+  color: #475569;
+}
+
+.student-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.student-avatar {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.student-avatar.large {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  font-size: 25px;
+}
+
+.student-full-name {
+  color: #172554;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.student-name-cell small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.student-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.student-actions .btn {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.student-actions .btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.student-actions .delete-student-button:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.students-table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.student-details {
+  text-align: center;
+}
+
+.student-details p {
+  margin-bottom: 12px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .students-page {
+    padding: 18px 12px;
+  }
+
+  .students-heading {
+    align-items: flex-start;
+  }
+
+  .students-heading h2 {
+    font-size: 24px;
+  }
+
+  .add-student-button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .students-table-card .card-body {
+    padding: 15px;
+  }
+
+  .students-toolbar {
+    align-items: stretch;
+  }
+
+  .students-filters {
+    width: 100%;
+  }
+
+  .student-search {
+    width: 100%;
+    flex: 1;
+  }
+
+  .fee-filter {
+    width: 115px;
+  }
+}

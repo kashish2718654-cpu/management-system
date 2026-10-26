@@ -1,0 +1,66 @@
+
+.settings-page {
+  padding: 25px;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+.settings-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.settings-heading h2 {
+  font-weight: 700;
+  color: #202b46;
+}
+
+.settings-heading p {
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.settings-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.settings-card .card-body {
+  padding: 25px;
+}
+
+.settings-section-title {
+  color: #293956;
+  font-weight: 650;
+  margin-bottom: 22px;
+}
+
+.settings-page .form-label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.settings-page .form-control {
+  padding: 11px 12px;
+  border-radius: 8px;
+}
+
+.save-settings {
+  padding: 11px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+@media (max-width: 576px) {
+  .settings-page {
+    padding: 15px;
+  }
+
+  .settings-card .card-body {
+    padding: 18px;
+  }
+}

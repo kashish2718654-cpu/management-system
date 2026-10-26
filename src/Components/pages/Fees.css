@@ -1,0 +1,156 @@
+
+.fees-page {
+  padding: 24px;
+  background: #f6f8fc;
+  min-height: 100vh;
+}
+
+.fees-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.fees-eyebrow {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  margin-bottom: 6px;
+}
+
+.fees-heading h2 {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #172033;
+}
+
+.fees-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fees-stat-card {
+  height: 100%;
+  border: 1px solid #e8edf5;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.fees-stat-card .card-body {
+  padding: 22px;
+}
+
+.fees-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 21px;
+  margin-bottom: 16px;
+}
+
+.fees-stat-icon.blue {
+  background: #e7efff;
+  color: #315bd6;
+}
+
+.fees-stat-icon.green {
+  background: #e0f7eb;
+  color: #16834a;
+}
+
+.fees-stat-icon.orange {
+  background: #fff0dc;
+  color: #bd6a0b;
+}
+
+.fees-stat-icon.purple {
+  background: #eee8ff;
+  color: #7046c9;
+}
+
+.fees-stat-card p {
+  color: #64748b;
+  margin-bottom: 7px;
+  font-size: 14px;
+}
+
+.fees-stat-card h3 {
+  font-size: 23px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  color: #172033;
+}
+
+.fees-table-card {
+  border: 1px solid #e8edf5;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.fees-table-card .card-body {
+  padding: 24px;
+}
+
+.fees-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.fees-section-heading h5 {
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #172033;
+}
+
+.fees-section-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.fees-table-card table th {
+  color: #64748b;
+  background: #f8fafc;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  padding: 14px;
+}
+
+.fees-table-card table td {
+  padding: 15px 14px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .fees-page {
+    padding: 14px;
+  }
+
+  .fees-heading {
+    align-items: stretch;
+  }
+
+  .fees-heading-actions {
+    width: 100%;
+  }
+
+  .fees-heading-actions button {
+    flex: 1;
+  }
+
+  .fees-table-card .card-body {
+    padding: 14px;
+  }
+}
