@@ -28,7 +28,15 @@ import {
 
 import "./Students.css";
 
-const API_URL = "http://localhost:8000/api/students/";
+const API_URL = "http://127.0.0.1:8000/api/students/";
+
+// Read Django CSRF cookie for POST, PATCH and DELETE requests.
+function getCookie(name) {
+  const cookie = document.cookie
+    .split("; ")
+    .find((item) => item.startsWith(`${name}=`));
+  return cookie ? decodeURIComponent(cookie.split("=").slice(1).join("=")) : "";
+}
 
 const emptyForm = {
   name: "",
@@ -52,20 +60,22 @@ function Students() {
   const [saving, setSaving] = useState(false);
   const [apiError, setApiError] = useState("");
 
-  // Load students from Django
+  // Load students from Django. The user must be logged in as an authorized user.
   async function fetchStudents() {
     try {
       setApiError("");
-
-      const response = await fetch(API_URL);
+      const response = await fetch(API_URL, { credentials: "include" });
 
       if (!response.ok) {
-        throw new Error("Failed to load students.");
+        if (response.status === 403 || response.status === 401) {
+          throw new Error("Your session is not authenticated. Please log in as an admin and try again.");
+        }
+        throw new Error(`Failed to load students (HTTP ${response.status}).`);
       }
 
       const data = await response.json();
-
-      const formattedStudents = data.map((student) => ({
+      const records = Array.isArray(data) ? data : data.results || [];
+      const formattedStudents = records.map((student) => ({
         databaseId: student.id,
         id: student.student_id,
         name: student.name,
@@ -80,9 +90,7 @@ function Students() {
       setStudents(formattedStudents);
     } catch (error) {
       console.error("Fetch error:", error);
-      setApiError(
-        "Could not connect to Django. Make sure the backend server is running."
-      );
+      setApiError(error.message || "Could not connect to Django. Make sure the backend server is running.");
     } finally {
       setLoading(false);
     }
@@ -184,10 +192,13 @@ function Students() {
         ? `${API_URL}${editingStudent.databaseId}/`
         : API_URL;
 
+      const csrfToken = getCookie("csrftoken");
       const response = await fetch(url, {
         method: isEditing ? "PATCH" : "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
         },
         body: JSON.stringify(studentData),
       });
@@ -231,6 +242,10 @@ function Students() {
         `${API_URL}${student.databaseId}/`,
         {
           method: "DELETE",
+          credentials: "include",
+          headers: {
+            ...(getCookie("csrftoken") ? { "X-CSRFToken": getCookie("csrftoken") } : {}),
+          },
         }
       );
 

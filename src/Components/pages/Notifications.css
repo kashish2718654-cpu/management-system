@@ -213,3 +213,114 @@
     padding: 5px 8px;
   }
 }
+
+/*  NOTIFICATIONS — DARK MODE*/
+
+[data-theme="dark"] .notification-page,
+.dark-mode .notification-page {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .notification-page h2,
+[data-theme="dark"] .notification-page h3,
+[data-theme="dark"] .notification-page h5,
+[data-theme="dark"] .notification-page h6,
+.dark-mode .notification-page h2,
+.dark-mode .notification-page h3,
+.dark-mode .notification-page h5,
+.dark-mode .notification-page h6 {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .notification-page .text-muted,
+.dark-mode .notification-page .text-muted {
+  color: #aebdd0 !important;
+}
+
+/* Summary cards and recent notifications */
+[data-theme="dark"] .notification-page .notification-card,
+[data-theme="dark"] .notification-page .notification-stat-card,
+.dark-mode .notification-page .notification-card,
+.dark-mode .notification-page .notification-stat-card {
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+}
+
+/* Individual notification items */
+[data-theme="dark"] .notification-page .notification-item,
+.dark-mode .notification-page .notification-item {
+  background: #172033;
+  color: #e2e8f0;
+  border-bottom-color: #334155;
+}
+
+/* Unread notifications */
+[data-theme="dark"] .notification-page .notification-item.unread,
+.dark-mode .notification-page .notification-item.unread {
+  background: #26364d;
+  border: 1px solid #3b4d67;
+}
+
+[data-theme="dark"] .notification-page .notification-item h5,
+[data-theme="dark"] .notification-page .notification-item h6,
+[data-theme="dark"] .notification-page .notification-item strong,
+.dark-mode .notification-page .notification-item h5,
+.dark-mode .notification-page .notification-item h6,
+.dark-mode .notification-page .notification-item strong {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .notification-page .notification-item p,
+[data-theme="dark"] .notification-page .notification-item small,
+.dark-mode .notification-page .notification-item p,
+.dark-mode .notification-page .notification-item small {
+  color: #cbd5e1;
+}
+
+/* Notification date */
+[data-theme="dark"] .notification-page .notification-item .text-muted,
+.dark-mode .notification-page .notification-item .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* Notification filter buttons */
+[data-theme="dark"] .notification-page .notification-filters .btn-outline-primary,
+.dark-mode .notification-page .notification-filters .btn-outline-primary {
+  color: #60a5fa;
+  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .notification-page .notification-filters .btn-outline-primary:hover,
+.dark-mode .notification-page .notification-filters .btn-outline-primary:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+/* Mark as read and refresh buttons */
+[data-theme="dark"] .notification-page .btn-outline-secondary,
+.dark-mode .notification-page .btn-outline-secondary {
+  color: #cbd5e1;
+  border-color: #64748b;
+}
+
+[data-theme="dark"] .notification-page .btn-outline-secondary:disabled,
+.dark-mode .notification-page .btn-outline-secondary:disabled {
+  color: #94a3b8;
+  opacity: 0.8;
+}
+
+/* Empty notification message */
+[data-theme="dark"] .notification-page .notification-empty,
+.dark-mode .notification-page .notification-empty {
+  color: #cbd5e1;
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  [data-theme="dark"] .notification-page .notification-item,
+  .dark-mode .notification-page .notification-item {
+    border-radius: 8px;
+  }
+}

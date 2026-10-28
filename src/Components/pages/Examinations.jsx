@@ -45,25 +45,37 @@ export default function Examinations() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const loadExams = useCallback(async () => {
-    setLoading(true);
-    setError("");
 
-    try {
-      const response = await fetch(API_URL);
+const loadExams = useCallback(async () => {
+  setLoading(true);
+  setError("");
 
-      if (!response.ok) {
-        throw new Error("Unable to load examinations.");
-      }
+  try {
+    const response = await fetch(API_URL, {
+      method: "GET",
+      credentials: "include",
+    });
 
-      const data = await response.json();
-      setExams(Array.isArray(data) ? data : data.results || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      const details = await response.json().catch(() => null);
+
+      throw new Error(
+        details
+          ? JSON.stringify(details)
+          : `Unable to load examinations. Status: ${response.status}`
+      );
     }
-  }, []);
+
+    const data = await response.json();
+
+    setExams(Array.isArray(data) ? data : data.results || []);
+  } catch (err) {
+    setError(err.message || "Something went wrong.");
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   useEffect(() => {
     loadExams();
@@ -128,6 +140,8 @@ export default function Examinations() {
         editingId ? `${API_URL}${editingId}/` : API_URL,
         {
           method: editingId ? "PUT" : "POST",
+          credentials: "include",
+           
           headers: {
             "Content-Type": "application/json",
           },
@@ -165,6 +179,7 @@ export default function Examinations() {
 
     try {
       const response = await fetch(`${API_URL}${exam.id}/`, {
+         credentials: "include",
         method: "DELETE",
       });
 

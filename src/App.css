@@ -182,3 +182,139 @@
     border-right-color: var(--border);
   }
 }
+
+/* EduManage global theme variables */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --em-bg: #f5f7fb;
+  --em-card: #ffffff;
+  --em-input: #ffffff;
+  --em-text: #1e293b;
+  --em-muted: #64748b;
+  --em-border: #e2e8f0;
+  --em-primary: #4f46e5;
+  --em-selected: #eef2ff;
+  --em-icon-bg: #e8eaff;
+  --em-focus: rgba(79, 70, 229, 0.18);
+  --em-shadow: 0 3px 14px rgba(15, 23, 42, 0.04);
+
+  --bs-body-bg: var(--em-bg);
+  --bs-body-color: var(--em-text);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --em-bg: #111827;
+  --em-card: #1f2937;
+  --em-input: #111827;
+  --em-text: #f1f5f9;
+  --em-muted: #a3afc2;
+  --em-border: #374151;
+  --em-primary: #818cf8;
+  --em-selected: #293252;
+  --em-icon-bg: #303956;
+  --em-focus: rgba(129, 140, 248, 0.25);
+  --em-shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
+
+  --bs-body-bg: var(--em-bg);
+  --bs-body-color: var(--em-text);
+}
+
+html {
+  min-height: 100%;
+  background: var(--em-bg);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--em-text);
+  background: var(--em-bg);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+#root {
+  min-height: 100vh;
+  color: var(--em-text);
+  background: var(--em-bg);
+}
+
+/* Bootstrap components */
+
+.card {
+  color: var(--em-text);
+}
+
+.table {
+  --bs-table-color: var(--em-text);
+  --bs-table-bg: var(--em-card);
+  --bs-table-border-color: var(--em-border);
+  --bs-table-striped-color: var(--em-text);
+  --bs-table-striped-bg: rgba(127, 127, 127, 0.06);
+  --bs-table-hover-color: var(--em-text);
+  --bs-table-hover-bg: rgba(127, 127, 127, 0.09);
+}
+
+.modal-content,
+.dropdown-menu,
+.list-group-item {
+  color: var(--em-text);
+  background-color: var(--em-card);
+  border-color: var(--em-border);
+}
+
+.dropdown-item {
+  color: var(--em-text);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: var(--em-text);
+  background-color: var(--em-selected);
+}
+
+.text-muted,
+.form-text {
+  color: var(--em-muted) !important;
+}
+
+hr {
+  border-color: var(--em-border);
+}
+
+/* Smooth theme transitions */
+
+body,
+#root,
+.card,
+.modal-content,
+.dropdown-menu,
+.list-group-item,
+.table,
+.form-control,
+.form-select {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+/* Prevent page content from hiding behind the fixed navbar */
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.students-page,
+.settings-page {
+  padding-top: 88px;
+}

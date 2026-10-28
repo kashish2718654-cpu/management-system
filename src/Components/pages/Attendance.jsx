@@ -28,6 +28,12 @@ const STUDENTS_API = "http://127.0.0.1:8000/api/students/";
 const ATTENDANCE_API = "http://127.0.0.1:8000/api/attendance/";
 const IMPORT_EXCEL_API = "http://127.0.0.1:8000/api/import-excel/";
 
+const apiFetch = (url, options = {}) =>
+  fetch(url, {
+    credentials: "include",
+    ...options,
+  });
+
 const today = () => {
   const now = new Date();
   const local = new Date(
@@ -132,8 +138,8 @@ export default function Attendance() {
 
     try {
       const [studentResponse, attendanceResponse] = await Promise.all([
-        fetch(STUDENTS_API),
-        fetch(
+        apiFetch(STUDENTS_API),
+        apiFetch(
           `${ATTENDANCE_API}?date=${encodeURIComponent(attendanceDate)}`
         ),
       ]);
@@ -191,7 +197,7 @@ export default function Attendance() {
     setError("");
 
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${ATTENDANCE_API}?date=${encodeURIComponent(historyDate)}`
       );
 
@@ -231,7 +237,7 @@ export default function Attendance() {
 
       // The current API filters by student, not date ranges.
       // Retrieve that student's saved records and filter the month here.
-      const response = await fetch(
+      const response = await apiFetch(
         `${ATTENDANCE_API}?student=${encodeURIComponent(reportStudent)}`
       );
 
@@ -284,8 +290,9 @@ export default function Attendance() {
     setMessage("");
 
     try {
-      const response = await fetch(STUDENTS_API, {
+      const response = await apiFetch(STUDENTS_API, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newStudent),
       });
@@ -329,7 +336,8 @@ export default function Attendance() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(IMPORT_EXCEL_API, {
+      const response = await apiFetch(IMPORT_EXCEL_API, {
+        credentials: "include",
         method: "POST",
         body: formData,
       });
@@ -382,7 +390,7 @@ export default function Attendance() {
           remarks: record.remarks || "",
         };
 
-        const response = await fetch(
+        const response = await apiFetch(
           record.id
             ? `${ATTENDANCE_API}${record.id}/`
             : ATTENDANCE_API,

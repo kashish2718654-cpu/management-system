@@ -5,7 +5,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
+
+from .models import AdminProfile
+
+
+def read_json_body(request):
+    try:
+        data = json.loads(request.body or b"{}")
+        if not isinstance(data, dict):
+            return None
+        return data
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
 
 
 @require_GET
@@ -16,15 +28,26 @@ def csrf_token(request):
 
 @require_POST
 def admin_login(request):
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({"message": "Invalid request data."}, status=400)
+    data = read_json_body(request)
 
-    username = data.get("username", "").strip()
+    if data is None:
+        return JsonResponse(
+            {"message": "Invalid request data."},
+            status=400,
+        )
+
+    username = data.get("username", "")
     password = data.get("password", "")
 
-    if not username or not isinstance(password, str) or not password:
+    if not isinstance(username, str) or not isinstance(password, str):
+        return JsonResponse(
+            {"message": "Username and password must be text."},
+            status=400,
+        )
+
+    username = username.strip()
+
+    if not username or not password:
         return JsonResponse(
             {"message": "Username and password are required."},
             status=400,
@@ -50,9 +73,13 @@ def admin_login(request):
 
     login(request, user)
 
+    # Ensure the session is saved before returning the response.
+    request.session.save()
+
     return JsonResponse({
         "message": "Login successful.",
         "username": user.username,
+        "authenticated": True,
     })
 
 
@@ -65,65 +92,92 @@ def admin_logout(request):
         )
 
     logout(request)
-    return JsonResponse({"message": "Logout successful."})
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
+    return JsonResponse({
+        "message": "Logout successful.",
+        "authenticated": False,
+    })
+
 
 @require_GET
 def auth_check(request):
-    is_authenticated = (
-        request.user.is_authenticated
-        and request.user.is_active
-        and request.user.is_staff
+    user = request.user
+
+    authenticated = (
+        user.is_authenticated
+        and user.is_active
+        and user.is_staff
     )
 
     return JsonResponse({
-        "authenticated": is_authenticated
+        "authenticated": authenticated,
+        "username": user.username if authenticated else None,
     })
-
-from .models import AdminProfile
-from django.views.decorators.http import require_http_methods
 
 
 @require_http_methods(["GET", "POST"])
 def admin_profile(request):
-    if not request.user.is_authenticated or not request.user.is_active or not request.user.is_staff:
-        return JsonResponse({"message": "Admin access required."}, status=403)
+    user = request.user
 
-    profile, _ = AdminProfile.objects.get_or_create(user=request.user)
+    if not (
+        user.is_authenticated
+        and user.is_active
+        and user.is_staff
+    ):
+        return JsonResponse(
+            {"message": "Admin access required. Please log in again."},
+            status=403,
+        )
+
+    profile, _ = AdminProfile.objects.get_or_create(user=user)
 
     if request.method == "GET":
         return JsonResponse({
-            "name": request.user.first_name or request.user.username,
-            "email": request.user.email,
+            "name": user.first_name or user.username,
+            "email": user.email,
             "phone": profile.phone,
             "role": "Institute Admin",
         })
 
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({"message": "Invalid request data."}, status=400)
+    data = read_json_body(request)
 
-    name = data.get("name", "").strip()
-    email = data.get("email", "").strip()
-    phone = data.get("phone", "").strip()
+    if data is None:
+        return JsonResponse(
+            {"message": "Invalid request data."},
+            status=400,
+        )
+
+    name = data.get("name", "")
+    email = data.get("email", "")
+    phone = data.get("phone", "")
+
+    if not all(isinstance(value, str) for value in [name, email, phone]):
+        return JsonResponse(
+            {"message": "Name, email and phone must be text."},
+            status=400,
+        )
+
+    name = name.strip()
+    email = email.strip()
+    phone = phone.strip()
 
     if not name or not email:
-        return JsonResponse({"message": "Name and email are required."}, status=400)
+        return JsonResponse(
+            {"message": "Name and email are required."},
+            status=400,
+        )
 
-    request.user.first_name = name
-    request.user.email = email
-    request.user.save(update_fields=["first_name", "email"])
+    user.first_name = name
+    user.email = email
+    user.save(update_fields=["first_name", "email"])
 
     profile.phone = phone
     profile.save(update_fields=["phone"])
 
     return JsonResponse({
         "message": "Profile saved successfully.",
-        "name": request.user.first_name,
-        "email": request.user.email,
+        "name": user.first_name,
+        "email": user.email,
         "phone": profile.phone,
         "role": "Institute Admin",
     })

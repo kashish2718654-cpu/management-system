@@ -43,12 +43,12 @@
   color: #475569;
 }
 
-/* .notification-btn .badge {
+.notification-btn .badge {
   position: absolute;
   top: 0;
   right: -2px;
   font-size: 9px;
-} */
+}
 
 .profile-title {
   display: inline-flex;
@@ -122,4 +122,462 @@
   .profile-title span {
     display: none;
   }
+}
+
+/* =========================================
+   EduManage - Global Light & Dark Theme
+   ========================================= */
+
+:root {
+  color-scheme: light;
+
+  --em-bg: #f5f7fb;
+  --em-card: #ffffff;
+  --em-navbar: #ffffff;
+  --em-sidebar: #ffffff;
+  --em-input: #ffffff;
+  --em-text: #172033;
+  --em-muted: #64748b;
+  --em-border: #e2e8f0;
+  --em-primary: #2563eb;
+  --em-primary-hover: #1d4ed8;
+  --em-selected: #eff6ff;
+  --em-icon-bg: #dbeafe;
+  --em-focus: rgba(37, 99, 235, 0.18);
+  --em-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --em-bg: #0f172a;
+  --em-card: #1e293b;
+  --em-navbar: #1e293b;
+  --em-sidebar: #1e293b;
+  --em-input: #0f172a;
+  --em-text: #e5e7eb;
+  --em-muted: #94a3b8;
+  --em-border: #334155;
+  --em-primary: #60a5fa;
+  --em-primary-hover: #93c5fd;
+  --em-selected: #263b59;
+  --em-icon-bg: #263b59;
+  --em-focus: rgba(96, 165, 250, 0.25);
+  --em-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* Base page */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+html {
+  background: var(--em-bg);
+}
+
+body {
+  color: var(--em-text);
+  background: var(--em-bg);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  color: var(--em-text);
+  background: var(--em-bg);
+}
+
+/* Main page containers */
+.students-page,
+.settings-page,
+.dashboard-page,
+.faculty-page,
+.attendance-page,
+.courses-page,
+.fees-page,
+.reports-page,
+.notifications-page,
+.admin-page,
+.timetable-page,
+.examinations-page,
+.results-page {
+  color: var(--em-text);
+  background: var(--em-bg);
+}
+
+/* Navbar */
+.top-navbar {
+  background: var(--em-navbar) !important;
+  color: var(--em-text);
+  border-bottom: 1px solid var(--em-border);
+  box-shadow: var(--em-shadow);
+}
+
+.top-navbar .navbar-brand,
+.top-navbar .brand-name,
+.top-navbar .profile-title,
+.top-navbar .profile-title strong {
+  color: var(--em-text) !important;
+}
+
+.top-navbar .profile-title small {
+  color: var(--em-muted) !important;
+}
+
+/* Cards */
+.card,
+.student-stat-card,
+.students-table-card,
+.settings-card {
+  color: var(--em-text);
+  background: var(--em-card);
+  border-color: var(--em-border);
+}
+
+/* Headings and ordinary text */
+h1, h2, h3, h4, h5, h6,
+p, label {
+  color: inherit;
+}
+
+.text-secondary,
+.text-muted {
+  color: var(--em-muted) !important;
+}
+
+/* Forms */
+.form-control,
+.form-select,
+.input-group-text {
+  color: var(--em-text);
+  background-color: var(--em-input);
+  border-color: var(--em-border);
+}
+
+.form-control::placeholder {
+  color: var(--em-muted);
+}
+
+.form-control:focus,
+.form-select:focus {
+  color: var(--em-text);
+  background-color: var(--em-input);
+  border-color: var(--em-primary);
+  box-shadow: 0 0 0 0.2rem var(--em-focus);
+}
+
+/* Tables */
+.table {
+  --bs-table-color: var(--em-text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--em-border);
+  --bs-table-hover-color: var(--em-text);
+  --bs-table-hover-bg: var(--em-selected);
+  color: var(--em-text);
+}
+
+.table thead th {
+  color: var(--em-text);
+  background: var(--em-card);
+  border-color: var(--em-border);
+}
+
+.table td,
+.table th {
+  border-color: var(--em-border);
+}
+
+/* Sidebar */
+.institute-sidebar {
+  color: var(--em-text) !important;
+  background: var(--em-sidebar) !important;
+  border-color: var(--em-border);
+}
+
+.institute-sidebar .offcanvas-header {
+  border-bottom: 1px solid var(--em-border);
+}
+
+.institute-sidebar .offcanvas-title,
+.institute-sidebar .menu-heading {
+  color: var(--em-text);
+}
+
+.sidebar-links .nav-link {
+  color: var(--em-text) !important;
+}
+
+.sidebar-links .nav-link:hover,
+.sidebar-links .nav-link.active {
+  color: var(--em-primary) !important;
+  background: var(--em-selected);
+}
+
+.institute-sidebar hr {
+  border-color: var(--em-border);
+}
+
+/* Dropdowns */
+.dropdown-menu {
+  color: var(--em-text);
+  background: var(--em-card);
+  border-color: var(--em-border);
+}
+
+.dropdown-item,
+.dropdown-header {
+  color: var(--em-text);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: var(--em-text);
+  background: var(--em-selected);
+}
+
+.dropdown-divider {
+  border-color: var(--em-border);
+}
+
+/* Modals */
+.modal-content {
+  color: var(--em-text);
+  background: var(--em-card);
+  border-color: var(--em-border);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--em-border);
+}
+
+.modal .btn-close {
+  filter: none;
+}
+
+:root[data-theme="dark"] .modal .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Pagination */
+.pagination {
+  --bs-pagination-color: var(--em-text);
+  --bs-pagination-bg: var(--em-card);
+  --bs-pagination-border-color: var(--em-border);
+  --bs-pagination-hover-color: var(--em-text);
+  --bs-pagination-hover-bg: var(--em-selected);
+  --bs-pagination-hover-border-color: var(--em-border);
+  --bs-pagination-disabled-bg: var(--em-card);
+  --bs-pagination-disabled-border-color: var(--em-border);
+  --bs-pagination-active-bg: var(--em-primary);
+  --bs-pagination-active-border-color: var(--em-primary);
+}
+
+/* Smooth global transitions */
+.card,
+.modal-content,
+.dropdown-menu,
+.form-control,
+.form-select,
+.table,
+.offcanvas {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+/* ==================================
+   EduManage Global Theme
+   ================================== */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --em-bg: #f5f7fb;
+  --em-card: #ffffff;
+  --em-text: #172033;
+  --em-muted: #64748b;
+  --em-border: #e2e8f0;
+  --em-primary: #2563eb;
+  --em-selected: #eff6ff;
+  --em-input: #ffffff;
+  --em-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --em-bg: #0f172a;
+  --em-card: #1e293b;
+  --em-text: #e2e8f0;
+  --em-muted: #94a3b8;
+  --em-border: #334155;
+  --em-primary: #60a5fa;
+  --em-selected: #263b59;
+  --em-input: #0f172a;
+  --em-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--em-bg);
+  color: var(--em-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  background: var(--em-bg);
+  color: var(--em-text);
+}
+
+.students-page,
+.settings-page,
+.dashboard-page,
+.container-fluid {
+  color: var(--em-text);
+}
+
+.card,
+.modal-content,
+.dropdown-menu,
+.offcanvas,
+.list-group-item {
+  color: var(--em-text);
+  background-color: var(--em-card);
+  border-color: var(--em-border);
+}
+
+.card {
+  box-shadow: var(--em-shadow);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+label,
+.form-label {
+  color: inherit;
+}
+
+.text-secondary,
+.text-muted,
+.form-text {
+  color: var(--em-muted) !important;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  color: var(--em-text);
+  background-color: var(--em-input);
+  border-color: var(--em-border);
+}
+
+.form-control::placeholder {
+  color: var(--em-muted);
+  opacity: 0.8;
+}
+
+.form-control:focus,
+.form-select:focus {
+  color: var(--em-text);
+  background-color: var(--em-input);
+  border-color: var(--em-primary);
+  box-shadow: 0 0 0 0.2rem
+    color-mix(in srgb, var(--em-primary) 20%, transparent);
+}
+
+.table {
+  --bs-table-color: var(--em-text);
+  --bs-table-bg: var(--em-card);
+  --bs-table-border-color: var(--em-border);
+  --bs-table-hover-color: var(--em-text);
+  --bs-table-hover-bg: var(--em-selected);
+  color: var(--em-text);
+  border-color: var(--em-border);
+}
+
+.table thead th {
+  color: var(--em-text);
+  border-color: var(--em-border);
+}
+
+.table td,
+.table th {
+  background-color: transparent;
+}
+
+hr {
+  border-color: var(--em-border);
+  opacity: 1;
+}
+
+.btn-light {
+  color: var(--em-text);
+  background-color: var(--em-card);
+  border-color: var(--em-border);
+}
+
+.btn-light:hover {
+  color: var(--em-text);
+  background-color: var(--em-selected);
+  border-color: var(--em-border);
+}
+
+.btn-outline-secondary {
+  color: var(--em-text);
+  border-color: var(--em-border);
+}
+
+.btn-outline-secondary:hover {
+  color: var(--em-text);
+  background-color: var(--em-selected);
+  border-color: var(--em-border);
+}
+
+.pagination {
+  --bs-pagination-bg: var(--em-card);
+  --bs-pagination-color: var(--em-text);
+  --bs-pagination-border-color: var(--em-border);
+  --bs-pagination-hover-bg: var(--em-selected);
+  --bs-pagination-hover-color: var(--em-text);
+  --bs-pagination-hover-border-color: var(--em-border);
+}
+
+.settings-card,
+.student-stat-card,
+.students-table-card {
+  background-color: var(--em-card);
+  color: var(--em-text);
+  border-color: var(--em-border);
+}
+
+/* Native controls */
+input,
+select,
+textarea {
+  color-scheme: inherit;
+}
+
+/* Avoid white backgrounds in common page wrappers */
+.app-content,
+.main-content,
+.page-content {
+  background-color: var(--em-bg);
+  color: var(--em-text);
+  min-width: 0;
 }

@@ -126,7 +126,11 @@ export default function Dashboard() {
           API.accounts,
           API.payments,
           API.attendance,
-        ].map((url) => fetch(url))
+        ].map((url) =>
+        fetch(url, {
+        credentials: "include",
+      })
+    )
       );
 
       const failedResponse = responses.find(

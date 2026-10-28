@@ -71,7 +71,7 @@ function Fees() {
 
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-
+  const [editingPayment, setEditingPayment] = useState(null);
   const [accountForm, setAccountForm] = useState(emptyAccountForm);
   const [paymentForm, setPaymentForm] = useState(emptyPaymentForm);
 
@@ -82,12 +82,17 @@ function Fees() {
 
     try {
       const [studentResponse, accountResponse, paymentResponse] =
-        await Promise.all([
-          fetch(STUDENTS_API),
-          fetch(ACCOUNTS_API),
-          fetch(PAYMENTS_API),
-        ]);
-
+  await Promise.all([
+    fetch(STUDENTS_API, {
+      credentials: "include",
+    }),
+    fetch(ACCOUNTS_API, {
+      credentials: "include",
+    }),
+    fetch(PAYMENTS_API, {
+      credentials: "include",
+    }),
+  ]);
       if (
         !studentResponse.ok ||
         !accountResponse.ok ||
@@ -248,8 +253,10 @@ function Fees() {
       const result = await response.json();
 
       if (!response.ok) {
-        console.error("Payment creation error:", result);
-
+       console.error(
+  "Payment creation error:",
+  JSON.stringify(result, null, 2)
+);
         setError(
           result.amount?.[0] ||
             result.fee_account?.[0] ||
@@ -274,6 +281,92 @@ function Fees() {
     }
   }
 
+async function handleDeletePayment(payment) {
+  const confirmed = window.confirm(
+    `Are you sure you want to delete this payment of ₹${payment.amount} for ${payment.student_name}? This action cannot be undone.`
+  );
+
+  if (!confirmed) return;
+
+  setError("");
+
+  try {
+    const response = await fetch(
+      `${PAYMENTS_API}${payment.id}/`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      setError("Could not delete the payment. Please try again.");
+      return;
+    }
+
+    await loadData();
+    alert("Payment deleted successfully!");
+  } catch (err) {
+    console.error("Payment deletion error:", err);
+    setError("Could not connect to the payment API.");
+  }
+}
+
+async function handleUpdatePayment(event) {
+  event.preventDefault();
+
+  if (!editingPayment) return;
+
+  setSaving(true);
+  setError("");
+
+  try {
+    const response = await fetch(
+      `${PAYMENTS_API}${editingPayment.id}/`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fee_account: Number(paymentForm.fee_account),
+          amount: paymentForm.amount,
+          payment_date: paymentForm.payment_date,
+          payment_method: paymentForm.payment_method,
+          note: paymentForm.note,
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Payment update error:", result);
+      setError(
+        result.amount?.[0] ||
+          result.fee_account?.[0] ||
+          result.payment_date?.[0] ||
+          result.payment_method?.[0] ||
+          "Could not update the payment. Check the payment details."
+      );
+      return;
+    }
+
+    setShowPaymentModal(false);
+    setEditingPayment(null);
+    setPaymentForm({
+      ...emptyPaymentForm,
+      payment_date: new Date().toISOString().slice(0, 10),
+    });
+
+    await loadData();
+  } catch (err) {
+    console.error("Payment update error:", err);
+    setError("Could not connect to the payment API.");
+  } finally {
+    setSaving(false);
+  }
+}
+
   function openAccountModal() {
     setError("");
     setAccountForm(emptyAccountForm);
@@ -291,6 +384,23 @@ function Fees() {
 
     setShowPaymentModal(true);
   }
+  function openEditPaymentModal(payment) {
+  setError("");
+console.log("Selected payment:", payment);
+  setEditingPayment(payment);
+
+  setPaymentForm({
+    fee_account: String(
+      payment.fee_account?.id ?? payment.fee_account
+    ),
+    amount: String(payment.amount ?? ""),
+    payment_date: payment.payment_date,
+    payment_method: payment.payment_method || "Cash",
+    note: payment.note || "",
+  });
+
+  setShowPaymentModal(true);
+}
 
   function handlePrintReceipt(payment) {
     const account = accounts.find(
@@ -372,11 +482,48 @@ function Fees() {
               font-size: 13px;
               color: #666;
             }
-            @media print {
-              body { padding: 0; }
-              .receipt { border: none; }
-              .no-print { display: none; }
-            }
+           
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #222 !important;
+    font-family: Arial, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .receipt {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  table {
+    width: 100%;
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}
+
           </style>
         </head>
         <body>
@@ -566,13 +713,13 @@ function Fees() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-4">
+                      <td colSpan={8} className="text-center py-4">
                         <Spinner animation="border" size="sm" /> Loading...
                       </td>
                     </tr>
                   ) : accounts.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-4">
+                      <td colSpan={8} className="text-center py-4">
                         No fee accounts yet. Select Create Fee Account
                         to get started.
                       </td>
@@ -645,19 +792,20 @@ function Fees() {
                     <th>Method</th>
                     <th>Note</th>
                     <th>Receipt</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-4">
+                      <td colSpan={8} className="text-center py-4">
                         <Spinner animation="border" size="sm" /> Loading...
                       </td>
                     </tr>
                   ) : payments.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-4">
+                      <td colSpan={8} className="text-center py-4">
                         No payments recorded yet.
                       </td>
                     </tr>
@@ -678,6 +826,24 @@ function Fees() {
                           >             
                              Print Receipt
                            </Button>
+                        
+                          <Button
+                            size="sm"
+                            variant="outline-warning"
+                            className="ms-2"
+                            onClick={() => openEditPaymentModal(payment)}
+                         >
+                             Edit
+                          </Button>
+                       
+                          <Button
+                                 size="sm"
+                                 variant="outline-danger"
+                                 className="ms-2"
+                                 onClick={() => handleDeletePayment(payment)}
+                          >
+                                 Delete
+                            </Button>
                         </td>
                       </tr>
                     ))
@@ -766,9 +932,11 @@ function Fees() {
         onHide={() => !saving && setShowPaymentModal(false)}
         centered
       >
-        <Form onSubmit={handleAddPayment}>
+        <Form onSubmit={ editingPayment ? handleUpdatePayment : handleAddPayment }>
           <Modal.Header closeButton>
-            <Modal.Title>Record Payment</Modal.Title>
+            <Modal.Title> 
+              {editingPayment ? "Edit Payment" : "Record Payment"}
+            </Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
@@ -854,7 +1022,11 @@ function Fees() {
               Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? "Saving..." : "Save Payment"}
+              {saving
+                ? "Saving..."
+                : editingPayment
+                ? "Update Payment"
+                : "Save Payment"}
             </Button>
           </Modal.Footer>
         </Form>

@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -21,8 +20,10 @@ import {
   Trash,
 } from "react-bootstrap-icons";
 
-const API_URL = "http://127.0.0.1:8000/api/timetable/";
-const STUDENTS_API = "http://127.0.0.1:8000/api/students/";
+const API_BASE = "http://127.0.0.1:8000/api";
+const API_URL = `${API_BASE}/timetable/`;
+const STUDENTS_API = `${API_BASE}/students/`;
+const CSRF_URL = `${API_BASE}/auth/csrf/`;
 
 const DAYS = [
   "Monday",
@@ -44,6 +45,93 @@ const EMPTY_FORM = {
   room: "",
 };
 
+function getCookie(name) {
+  const prefix = `${name}=`;
+  const cookie = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(prefix));
+
+  return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : "";
+}
+
+async function ensureCsrfToken() {
+  // The backend should expose this endpoint and set Django's csrftoken cookie.
+  const response = await fetch(CSRF_URL, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      "Could not obtain a CSRF token. Check the Django CSRF endpoint and CORS settings."
+    );
+  }
+
+  // Some APIs return the token in JSON; otherwise Django sets the csrftoken cookie.
+  const data = await response.json().catch(() => null);
+  return data?.csrfToken || data?.csrf_token || getCookie("csrftoken");
+}
+
+async function apiRequest(url, options = {}) {
+  const method = (options.method || "GET").toUpperCase();
+  const headers = { ...(options.headers || {}) };
+
+  if (options.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    const csrfToken = await ensureCsrfToken();
+    if (csrfToken) headers["X-CSRFToken"] = csrfToken;
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    method,
+    headers,
+    credentials: "include",
+  });
+
+  if (response.status === 204) return null;
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    let detail = "Request failed.";
+    if (typeof data === "string") {
+      detail = data;
+    } else if (data && typeof data === "object") {
+      detail = Object.entries(data)
+        .map(([key, value]) => {
+          const readable =
+            Array.isArray(value) ? value.join(", ") :
+            typeof value === "object" && value !== null
+              ? JSON.stringify(value)
+              : String(value);
+          return `${key}: ${readable}`;
+        })
+        .join(" | ");
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        `Access denied (${response.status}). Please sign in as an authorized admin. If already signed in, check Django session, CSRF and CORS settings. ${detail}`
+      );
+    }
+
+    throw new Error(`${detail} (HTTP ${response.status})`);
+  }
+
+  return data;
+}
+
+function asList(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.results)) return data.results;
+  return [];
+}
+
 export default function Timetable() {
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -62,31 +150,16 @@ export default function Timetable() {
     setError("");
 
     try {
-      const [studentsResponse, classesResponse] = await Promise.all([
-        fetch(STUDENTS_API),
-        fetch(API_URL),
+      const [studentsData, classesData] = await Promise.all([
+        apiRequest(STUDENTS_API),
+        apiRequest(API_URL),
       ]);
 
-      if (!studentsResponse.ok || !classesResponse.ok) {
-        throw new Error("Unable to load students or timetable.");
-      }
-
-      const studentsData = await studentsResponse.json();
-      const classesData = await classesResponse.json();
-
-      setStudents(
-        Array.isArray(studentsData)
-          ? studentsData
-          : studentsData.results || []
-      );
-
-      setClasses(
-        Array.isArray(classesData)
-          ? classesData
-          : classesData.results || []
-      );
+      setStudents(asList(studentsData));
+      setClasses(asList(classesData));
     } catch (err) {
-      setError(err.message);
+      console.error("Timetable load error:", err);
+      setError(err.message || "Unable to load students or timetable.");
     } finally {
       setLoading(false);
     }
@@ -98,7 +171,7 @@ export default function Timetable() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData(EMPTY_FORM);
+    setFormData({ ...EMPTY_FORM });
     setError("");
     setMessage("");
     setShowModal(true);
@@ -107,9 +180,9 @@ export default function Timetable() {
   const openEditModal = (item) => {
     setEditingId(item.id);
     setFormData({
-      student: String(item.student),
-      subject: item.subject,
-      day: item.day,
+      student: String(item.student ?? item.student_id ?? ""),
+      subject: item.subject || "",
+      day: item.day || "Monday",
       start_time: item.start_time?.slice(0, 5) || "",
       end_time: item.end_time?.slice(0, 5) || "",
       teacher: item.teacher || "",
@@ -122,10 +195,7 @@ export default function Timetable() {
 
   const updateField = (event) => {
     const { name, value } = event.target;
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+    setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
   const saveClass = async (event) => {
@@ -135,6 +205,15 @@ export default function Timetable() {
     setMessage("");
 
     try {
+      if (!formData.student) {
+        throw new Error("Please select a student.");
+      }
+      if (!formData.subject.trim()) {
+        throw new Error("Please enter a subject.");
+      }
+      if (!formData.start_time || !formData.end_time) {
+        throw new Error("Please select start and end times.");
+      }
       if (formData.end_time <= formData.start_time) {
         throw new Error("End time must be later than start time.");
       }
@@ -142,25 +221,15 @@ export default function Timetable() {
       const payload = {
         ...formData,
         student: Number(formData.student),
+        subject: formData.subject.trim(),
+        teacher: formData.teacher.trim(),
+        room: formData.room.trim(),
       };
 
-      const response = await fetch(
-        editingId ? `${API_URL}${editingId}/` : API_URL,
-        {
-          method: editingId ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        const details = await response.json().catch(() => null);
-        throw new Error(
-          details ? JSON.stringify(details) : "Unable to save class."
-        );
-      }
+      await apiRequest(editingId ? `${API_URL}${editingId}/` : API_URL, {
+        method: editingId ? "PATCH" : "POST",
+        body: JSON.stringify(payload),
+      });
 
       setShowModal(false);
       setMessage(
@@ -168,10 +237,10 @@ export default function Timetable() {
           ? "Timetable entry updated successfully."
           : "Class added successfully."
       );
-
       await loadData();
     } catch (err) {
-      setError(err.message);
+      console.error("Save timetable entry error:", err);
+      setError(err.message || "Unable to save class.");
     } finally {
       setSaving(false);
     }
@@ -179,7 +248,9 @@ export default function Timetable() {
 
   const deleteClass = async (item) => {
     const confirmed = window.confirm(
-      `Delete ${item.subject} for ${item.student_name}?`
+      `Delete ${item.subject || "this class"} for ${
+        item.student_name || "this student"
+      }?`
     );
 
     if (!confirmed) return;
@@ -188,20 +259,12 @@ export default function Timetable() {
     setMessage("");
 
     try {
-      const response = await fetch(`${API_URL}${item.id}/`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Unable to delete timetable entry.");
-      }
-
-      setClasses((previous) =>
-        previous.filter((entry) => entry.id !== item.id)
-      );
+      await apiRequest(`${API_URL}${item.id}/`, { method: "DELETE" });
+      setClasses((previous) => previous.filter((entry) => entry.id !== item.id));
       setMessage("Timetable entry deleted successfully.");
     } catch (err) {
-      setError(err.message);
+      console.error("Delete timetable entry error:", err);
+      setError(err.message || "Unable to delete timetable entry.");
     }
   };
 
@@ -219,12 +282,12 @@ export default function Timetable() {
         .join(" ")
         .toLowerCase();
 
-      return text.includes(search.toLowerCase());
+      return text.includes(search.trim().toLowerCase());
     })
     .sort((a, b) => {
       const dayDifference = DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
       if (dayDifference !== 0) return dayDifference;
-      return a.start_time.localeCompare(b.start_time);
+      return (a.start_time || "").localeCompare(b.start_time || "");
     });
 
   return (
@@ -249,7 +312,6 @@ export default function Timetable() {
             <ArrowClockwise className="me-2" />
             Refresh
           </Button>
-
           <Button variant="primary" onClick={openAddModal}>
             <PlusCircle className="me-2" />
             Add Class
@@ -257,8 +319,16 @@ export default function Timetable() {
         </div>
       </div>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {message && <Alert variant="success">{message}</Alert>}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
+      {message && (
+        <Alert variant="success" dismissible onClose={() => setMessage("")}>
+          {message}
+        </Alert>
+      )}
 
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} lg={4}>
@@ -269,7 +339,6 @@ export default function Timetable() {
             </Card.Body>
           </Card>
         </Col>
-
         <Col xs={12} sm={6} lg={4}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Body>
@@ -278,7 +347,6 @@ export default function Timetable() {
             </Card.Body>
           </Card>
         </Col>
-
         <Col xs={12} sm={6} lg={4}>
           <Card className="border-0 shadow-sm h-100">
             <Card.Body>
@@ -310,7 +378,6 @@ export default function Timetable() {
                 ))}
               </Form.Select>
             </Col>
-
             <Col xs={12} md={8}>
               <Form.Label>Search Classes</Form.Label>
               <Form.Control
@@ -343,19 +410,17 @@ export default function Timetable() {
                   <th>Actions</th>
                 </tr>
               </thead>
-
               <tbody>
                 {filteredClasses.map((item) => (
                   <tr key={item.id}>
                     <td>
                       <div className="fw-semibold">
-                        {item.student_name}
+                        {item.student_name || item.student_full_name || "Student"}
                       </div>
                       <small className="text-muted">
-                        {item.student_code}
+                        {item.student_code || ""}
                       </small>
                     </td>
-
                     <td>{item.subject}</td>
                     <td>
                       <Badge bg="primary">{item.day}</Badge>
@@ -366,7 +431,6 @@ export default function Timetable() {
                     </td>
                     <td>{item.teacher || "—"}</td>
                     <td>{item.room || "—"}</td>
-
                     <td>
                       <div className="d-flex gap-2">
                         <Button
@@ -377,7 +441,6 @@ export default function Timetable() {
                         >
                           <PencilSquare />
                         </Button>
-
                         <Button
                           size="sm"
                           variant="outline-danger"
@@ -457,7 +520,6 @@ export default function Timetable() {
                   </Form.Select>
                 </Form.Group>
               </Col>
-
               <Col sm={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Teacher</Form.Label>
@@ -484,7 +546,6 @@ export default function Timetable() {
                   />
                 </Form.Group>
               </Col>
-
               <Col sm={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>End Time *</Form.Label>
@@ -515,10 +576,10 @@ export default function Timetable() {
               variant="secondary"
               onClick={() => setShowModal(false)}
               disabled={saving}
+              type="button"
             >
               Cancel
             </Button>
-
             <Button type="submit" variant="primary" disabled={saving}>
               {saving ? (
                 <>

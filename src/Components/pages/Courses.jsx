@@ -70,41 +70,41 @@ function Courses() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const request = async (url, options = {}) => {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...(options.body
-          ? { "Content-Type": "application/json" }
-          : {}),
-        ...options.headers,
-      },
-    });
+const request = async (url, options = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    credentials: "include",
+    headers: {
+      ...(options.body
+        ? { "Content-Type": "application/json" }
+        : {}),
+      ...options.headers,
+    },
+  });
 
-    const data = await response.json().catch(() => null);
+  const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
-      const message =
-        data && typeof data === "object"
-          ? Object.entries(data)
-              .map(([key, value]) => {
-                const text = Array.isArray(value)
-                  ? value.join(", ")
-                  : typeof value === "object"
-                    ? JSON.stringify(value)
-                    : String(value);
+  if (!response.ok) {
+    const message =
+      data && typeof data === "object"
+        ? Object.entries(data)
+            .map(([key, value]) => {
+              const text = Array.isArray(value)
+                ? value.join(", ")
+                : typeof value === "object"
+                  ? JSON.stringify(value)
+                  : String(value);
 
-                return `${key}: ${text}`;
-              })
-              .join(" | ")
-          : "The request failed.";
+              return `${key}: ${text}`;
+            })
+            .join(" | ")
+        : "The request failed.";
 
-      throw new Error(message || "The request failed.");
-    }
+    throw new Error(message || "The request failed.");
+  }
 
-    return data;
-  };
-
+  return data;
+};
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");

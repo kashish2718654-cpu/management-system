@@ -154,3 +154,49 @@
     padding: 14px;
   }
 }
+/* Fee Management - Dark Mode */
+[data-theme="dark"] .fees-page {
+  background-color: #111827;
+  color: #f9fafb;
+  min-height: 100vh;
+}
+
+[data-theme="dark"] .fees-page h2,
+[data-theme="dark"] .fees-page h3,
+[data-theme="dark"] .fees-page h5,
+[data-theme="dark"] .fees-page label,
+[data-theme="dark"] .fees-page td,
+[data-theme="dark"] .fees-page th {
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .fees-page .text-secondary,
+[data-theme="dark"] .fees-page .text-muted {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .fees-stat-card,
+[data-theme="dark"] .fees-table-card {
+  background-color: #1e293b;
+  color: #f9fafb;
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .fees-page .table {
+  --bs-table-bg: #1e293b;
+  --bs-table-color: #f9fafb;
+  --bs-table-border-color: #475569;
+  --bs-table-hover-bg: #334155;
+  --bs-table-hover-color: #ffffff;
+}
+
+[data-theme="dark"] .fees-page .form-control,
+[data-theme="dark"] .fees-page .form-select {
+  background-color: #1e293b;
+  color: #f9fafb;
+  border-color: #475569;
+}
+
+[data-theme="dark"] .fees-page .form-control::placeholder {
+  color: #94a3b8;
+}

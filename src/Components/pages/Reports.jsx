@@ -50,11 +50,17 @@ function Reports() {
         `${API}/fees/accounts/`,
         `${API}/fees/payments/`,
       ];
-
-      const responses = await Promise.all(
-        endpoints.map((url) => fetch(url))
-      );
-
+const responses = await Promise.all(
+  endpoints.map((url) =>
+    fetch(url, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+  )
+);
       const failed = responses.find((response) => !response.ok);
 
       if (failed) {

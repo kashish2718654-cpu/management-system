@@ -152,9 +152,11 @@ export function NotificationProvider({ children }) {
   const refreshNotifications = useCallback(async () => {
     try {
       const responses = await Promise.all([
-        fetch(API.students),
-        fetch(API.accounts),
-        fetch(`${API.attendance}?date=${today()}`),
+         fetch(API.students, { credentials: "include" }),
+         fetch(API.accounts, { credentials: "include" }),
+         fetch(`${API.attendance}?date=${today()}`, {
+         credentials: "include",
+         }),
       ]);
 
       if (responses.some((response) => !response.ok)) {
@@ -194,7 +196,7 @@ export function NotificationProvider({ children }) {
 
   useEffect(() => {
     refreshNotifications();
-
+     
     const interval = setInterval(refreshNotifications, 30000);
     return () => clearInterval(interval);
   }, [refreshNotifications]);

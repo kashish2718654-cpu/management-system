@@ -52,12 +52,23 @@ export default function Results() {
     setError("");
 
     try {
-      const [studentResponse, examResponse, resultResponse] =
-        await Promise.all([
-          fetch(STUDENTS_API),
-          fetch(EXAMS_API),
-          fetch(RESULTS_API),
-        ]);
+      
+const [studentResponse, examResponse, resultResponse] =
+  await Promise.all([
+    fetch(STUDENTS_API, {
+      method: "GET",
+      credentials: "include",
+    }),
+    fetch(EXAMS_API, {
+      method: "GET",
+      credentials: "include",
+    }),
+    fetch(RESULTS_API, {
+      method: "GET",
+      credentials: "include",
+    }),
+  ]);
+
 
       if (
         !studentResponse.ok ||
@@ -174,6 +185,7 @@ export default function Results() {
           method: editingId ? "PUT" : "POST",
           headers: {
             "Content-Type": "application/json",
+            credentials: "include",
           },
           body: JSON.stringify(payload),
         }
@@ -216,7 +228,8 @@ export default function Results() {
     try {
       const response = await fetch(
         `${RESULTS_API}${result.id}/`,
-        { method: "DELETE" }
+        { method: "DELETE" },
+        {credentials: "include"}
       );
 
       if (!response.ok) {

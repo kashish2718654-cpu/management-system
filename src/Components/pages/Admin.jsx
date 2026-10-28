@@ -4,7 +4,10 @@ import { Card, Form, Button, Row, Col } from "react-bootstrap";
 import { PersonCircle, ShieldLock } from "react-bootstrap-icons";
 import "./Admin.css";
 
-const API_URL = "http://localhost:8000/api/auth/profile/";
+// Use the same backend host for every request
+const BASE_URL = "http://127.0.0.1:8000";
+const API_URL = `${BASE_URL}/api/auth/profile/`;
+const CSRF_URL = `${BASE_URL}/api/auth/csrf/`;
 
 const emptyAdmin = {
   name: "",
@@ -20,27 +23,52 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  async function readResponse(response) {
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.message ||
+        data.detail ||
+        `Request failed (${response.status})`
+      );
+    }
+
+    return data;
+  }
+
   useEffect(() => {
+    let cancelled = false;
+
     async function loadProfile() {
       try {
         const response = await fetch(API_URL, {
+          method: "GET",
           credentials: "include",
+          headers: { Accept: "application/json" },
         });
-        const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.message || "Could not load profile.");
+        const data = await readResponse(response);
+
+        if (!cancelled) {
+          setAdmin({ ...emptyAdmin, ...data });
+          setError("");
         }
-
-        setAdmin({ ...emptyAdmin, ...data });
       } catch (err) {
-        setError(err.message || "Could not connect to Django.");
+        if (!cancelled) {
+          setError(err.message || "Could not load admin profile.");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     loadProfile();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleChange = (e) => {
@@ -59,22 +87,25 @@ export default function Admin() {
     setError("");
 
     try {
-      const csrfResponse = await fetch(
-        "http://localhost:8000/api/auth/csrf/",
-        { credentials: "include" }
-      );
+      // Obtain CSRF token before updating the profile
+      const csrfResponse = await fetch(CSRF_URL, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
 
-      if (!csrfResponse.ok) {
-        throw new Error("Could not obtain security token. Please log in again.");
+      const csrfData = await readResponse(csrfResponse);
+
+      if (!csrfData.csrfToken) {
+        throw new Error("CSRF token missing. Please log in again.");
       }
-
-      const csrfData = await csrfResponse.json();
 
       const response = await fetch(API_URL, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
           "X-CSRFToken": csrfData.csrfToken,
         },
         body: JSON.stringify({
@@ -84,16 +115,12 @@ export default function Admin() {
         }),
       });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
-      if (!response.ok) {
-        throw new Error(data.message || "Could not save profile.");
-      }
-
-      setAdmin({ ...emptyAdmin, ...data });
+      setAdmin((previous) => ({ ...previous, ...data }));
       setMessage("Profile saved successfully.");
     } catch (err) {
-      setError(err.message || "Could not connect to Django.");
+      setError(err.message || "Could not save profile.");
     } finally {
       setSaving(false);
     }
@@ -105,8 +132,14 @@ export default function Admin() {
 
   return (
     <div className="admin-page">
-      <h2><PersonCircle className="me-2" />Admin Profile</h2>
-      <p className="text-muted">Manage your administrator details.</p>
+      <h2>
+        <PersonCircle className="me-2" />
+        Admin Profile
+      </h2>
+
+      <p className="text-muted">
+        Manage your administrator details.
+      </p>
 
       <Card className="admin-card mt-4">
         <Card.Body>
@@ -114,9 +147,11 @@ export default function Admin() {
             <PersonCircle />
           </div>
 
-          <h5 className="text-center">{admin.name || "Administrator"}</h5>
-          <p className="text-center text-muted">{admin.role}</p>
+          <h5 className="text-center">
+            {admin.name || "Administrator"}
+          </h5>
 
+          <p className="text-center text-muted">{admin.role}</p>
           <hr />
 
           <Form onSubmit={handleSubmit}>

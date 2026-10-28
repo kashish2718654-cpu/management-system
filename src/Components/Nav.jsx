@@ -10,7 +10,7 @@ import {
   Badge,
   Button,
   Offcanvas,
-  Image,
+
 } from "react-bootstrap";
 
 import {
@@ -29,7 +29,7 @@ import {
   Trophy,
   Gear,
   BoxArrowRight,
-  PersonVcard,
+
   ShieldCheck,
 } from "react-bootstrap-icons";
 
@@ -45,27 +45,32 @@ function Navbar() {
   const closeMenu = () => setShowMenu(false);
 
   
-const handleLogout = async () => {
-  const confirmed = window.confirm("Are you sure you want to log out?");
 
-  if (!confirmed) return;
+       const handleLogout = async () => {
+       const confirmed = window.confirm("Are you sure you want to log out?");
 
-  try {
-    // Get a CSRF token
-    const csrfResponse = await fetch(
-      "http://localhost:8000/api/auth/csrf/",
-      { credentials: "include" }
-    );
+       if (!confirmed) return;
 
-    if (!csrfResponse.ok) {
+      try {
+       // Get a CSRF token from Django
+       const csrfResponse = await fetch(
+     "http://127.0.0.1:8000/api/auth/csrf/",
+      {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      }
+     );
+
+     if (!csrfResponse.ok) {
       throw new Error("Could not get security token.");
     }
+ 
+     const csrfData = await csrfResponse.json();
 
-    const csrfData = await csrfResponse.json();
-
-    // Log out from Django
-    const response = await fetch(
-      "http://localhost:8000/api/auth/logout/",
+       // End the Django session
+     const response = await fetch(
+      "http://127.0.0.1:8000/api/auth/logout/",
       {
         method: "POST",
         credentials: "include",
@@ -75,17 +80,20 @@ const handleLogout = async () => {
       }
     );
 
-       if (!response.ok) {
-         throw new Error("Logout failed. Please try again.");
-      }
+    if (!response.ok) {
+      throw new Error("Logout failed. Please try again.");
+    }
 
-           sessionStorage.removeItem("isAuthenticated");
-           navigate("/login", { replace: true });
-       } catch (error) {
-           console.error("Logout error:", error);
-           window.alert(error.message || "Could not connect to Django.");
-       }
-      };
+    // Django session has been ended successfully
+      sessionStorage.removeItem("isAuthenticated");
+      navigate("/login", { replace: true });
+     } catch (error) {
+       console.error("Logout error:", error);
+       window.alert(
+       error.message || "Could not connect to Django."
+      );
+    }
+   };
 
        const menuItems = [
       { to: "/students", label: "Students", icon: PeopleFill },
