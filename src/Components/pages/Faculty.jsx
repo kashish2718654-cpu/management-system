@@ -22,7 +22,7 @@ import {
 
 import "./Faculty.css";
 
-const API_URL = "http://127.0.0.1:8000/api/faculty/";
+const API_URL = "http://localhost:8000/api/faculty/";
 
 const INITIAL_FORM = {
   name: "",

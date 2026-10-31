@@ -21,9 +21,9 @@ import {
 } from "react-bootstrap-icons";
 import "./Fees.css";
 
-const STUDENTS_API = "http://127.0.0.1:8000/api/students/";
-const ACCOUNTS_API = "http://127.0.0.1:8000/api/fees/accounts/";
-const PAYMENTS_API = "http://127.0.0.1:8000/api/fees/payments/";
+const STUDENTS_API = "http://localhost:8000/api/students/";
+const ACCOUNTS_API = "http://localhost:8000/api/fees/accounts/";
+const PAYMENTS_API = "http://localhost:8000/api/fees/payments/";
 
 const COURSE_FEES = {
   "Full Stack Development": 18000,

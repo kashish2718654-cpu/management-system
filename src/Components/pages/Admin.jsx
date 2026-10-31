@@ -5,7 +5,7 @@ import { PersonCircle, ShieldLock } from "react-bootstrap-icons";
 import "./Admin.css";
 
 // Use the same backend host for every request
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "http://localhost:8000";
 const API_URL = `${BASE_URL}/api/auth/profile/`;
 const CSRF_URL = `${BASE_URL}/api/auth/csrf/`;
 

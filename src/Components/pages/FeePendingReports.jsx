@@ -20,7 +20,7 @@ import {
   CurrencyRupee,
 } from "react-bootstrap-icons";
 
-const API_URL = "http://127.0.0.1:8000/api/fees/pending-report/";
+const API_URL = "http://localhost:8000/api/fees/pending-report/";
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat("en-IN", {

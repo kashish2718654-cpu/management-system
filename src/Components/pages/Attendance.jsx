@@ -23,10 +23,9 @@ import {
   ClockHistory,
   ClipboardData,
 } from "react-bootstrap-icons";
-
-const STUDENTS_API = "http://127.0.0.1:8000/api/students/";
-const ATTENDANCE_API = "http://127.0.0.1:8000/api/attendance/";
-const IMPORT_EXCEL_API = "http://127.0.0.1:8000/api/import-excel/";
+const STUDENTS_API = "http://localhost:8000/api/students/";
+const ATTENDANCE_API = "http://localhost:8000/api/attendance/";
+const IMPORT_EXCEL_API = "http://localhost:8000/api/import-excel/";
 
 const apiFetch = (url, options = {}) =>
   fetch(url, {

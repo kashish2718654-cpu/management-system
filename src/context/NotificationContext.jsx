@@ -10,9 +10,9 @@ import {
 const NotificationContext = createContext(null);
 
 const API = {
-  students: "http://127.0.0.1:8000/api/students/",
-  accounts: "http://127.0.0.1:8000/api/fees/accounts/",
-  attendance: "http://127.0.0.1:8000/api/attendance/",
+  students: "http://localhost:8000/api/students/",
+  accounts: "http://localhost:8000/api/fees/accounts/",
+  attendance: "http://localhost:8000/api/attendance/",
 };
 
 const getList = (data) =>

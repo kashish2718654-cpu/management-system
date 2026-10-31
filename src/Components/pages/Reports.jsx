@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap-icons";
 import "./Reports.css";
 
-const API = "http://127.0.0.1:8000/api";
+const API = "http://localhost:8000/api";
 
 const getList = (data) => {
   if (Array.isArray(data)) return data;

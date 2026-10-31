@@ -20,10 +20,9 @@ import {
   Trash,
   Trophy,
 } from "react-bootstrap-icons";
-
-const RESULTS_API = "http://127.0.0.1:8000/api/results/";
-const STUDENTS_API = "http://127.0.0.1:8000/api/students/";
-const EXAMS_API = "http://127.0.0.1:8000/api/examinations/";
+const RESULTS_API = "http://localhost:8000/api/results/";
+const STUDENTS_API = "http://localhost:8000/api/students/";
+const EXAMS_API = "http://localhost:8000/api/examinations/";
 
 const EMPTY_FORM = {
   student: "",

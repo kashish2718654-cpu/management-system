@@ -54,7 +54,7 @@ function Navbar() {
       try {
        // Get a CSRF token from Django
        const csrfResponse = await fetch(
-     "http://127.0.0.1:8000/api/auth/csrf/",
+     "http://localhost:8000/api/auth/csrf/",
       {
         method: "GET",
         credentials: "include",
@@ -70,7 +70,7 @@ function Navbar() {
 
        // End the Django session
      const response = await fetch(
-      "http://127.0.0.1:8000/api/auth/logout/",
+      "http://localhost:8000/api/auth/logout/",
       {
         method: "POST",
         credentials: "include",

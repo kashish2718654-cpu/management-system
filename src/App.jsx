@@ -1,7 +1,5 @@
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Navbar from "./Components/Nav.jsx";
 import Dashboard from "./Components/pages/Dash.jsx";
@@ -20,32 +18,44 @@ import Examinations from "./Components/pages/Examinations.jsx";
 import Results from "./Components/pages/Results.jsx";
 import Login from "./Components/pages/Login.jsx";
 
+function Layout() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+
+  return (
+    <>
+      {!isLoginPage && <Navbar />}
+
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/students" element={<Students />} />
+        <Route path="/faculty" element={<Faculty />} />
+        <Route path="/attendance" element={<Attendance />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/fees" element={<Fees />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/feependingreports" element={<FeePendingReports />} />
+        <Route path="/timetable" element={<Timetable />} />
+        <Route path="/examinations" element={<Examinations />} />
+        <Route path="/results" element={<Results />} />
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </>
+  );
+}
+
 function App() {
   return (
-    
-      <BrowserRouter>
-        <Navbar />
-
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/faculty" element={<Faculty />} />
-          <Route path="/attendance" element={<Attendance />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/fees" element={<Fees />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/feependingreports" element={<FeePendingReports />} />
-          <Route path="/timetable" element={<Timetable />} />
-          <Route path="/examinations" element={<Examinations />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </BrowserRouter>
-  
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
   );
 }
 

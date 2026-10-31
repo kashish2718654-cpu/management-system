@@ -28,7 +28,7 @@ import {
 
 import "./Students.css";
 
-const API_URL = "http://127.0.0.1:8000/api/students/";
+const API_URL =  "http://localhost:8000/api/students/";
 
 // Read Django CSRF cookie for POST, PATCH and DELETE requests.
 function getCookie(name) {

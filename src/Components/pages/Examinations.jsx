@@ -21,7 +21,7 @@ import {
   Trash,
 } from "react-bootstrap-icons";
 
-const API_URL = "http://127.0.0.1:8000/api/examinations/";
+const API_URL = "http://localhost:8000/api/examinations/";
 
 const EMPTY_FORM = {
   name: "",

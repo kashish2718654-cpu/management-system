@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
 
 
-const API_URL = "http://127.0.0.1:8000/api/auth/";
+const API_URL = "http://localhost:8000/api/auth/";
 
 function getCookie(name) {
   const cookies = document.cookie.split(";");

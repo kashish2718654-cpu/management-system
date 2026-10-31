@@ -36,10 +36,10 @@ import {
 } from "recharts";
 
 const API = {
-  students: "http://127.0.0.1:8000/api/students/",
-  accounts: "http://127.0.0.1:8000/api/fees/accounts/",
-  payments: "http://127.0.0.1:8000/api/fees/payments/",
-  attendance: "http://127.0.0.1:8000/api/attendance/",
+  students: "http://localhost:8000/api/students/",
+  accounts: "http://localhost:8000/api/fees/accounts/",
+  payments: "http://localhost:8000/api/fees/payments/",
+  attendance: "http://localhost:8000/api/attendance/",
 };
 
 const CHART_COLORS = [

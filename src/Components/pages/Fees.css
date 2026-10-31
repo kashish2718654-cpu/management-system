@@ -200,3 +200,24 @@
 [data-theme="dark"] .fees-page .form-control::placeholder {
   color: #94a3b8;
 }
+/* Dark mode - Fees tables */
+[data-theme="dark"] .fees-page table,
+.dark-mode .fees-page table {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .fees-page thead,
+.dark-mode .fees-page thead {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .fees-page th,
+[data-theme="dark"] .fees-page td,
+.dark-mode .fees-page th,
+.dark-mode .fees-page td {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
