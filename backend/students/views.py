@@ -8,13 +8,17 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import datetime
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all().order_by("-id")
     serializer_class = StudentSerializer
+    permission_classes = [IsAuthenticated]
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
+@permission_classes([IsAuthenticated])
 def import_students_excel(request):
     excel_file = request.FILES.get("file")
 

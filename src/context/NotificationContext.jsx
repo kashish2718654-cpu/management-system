@@ -13,6 +13,8 @@ const API = {
   students: "http://localhost:8000/api/students/",
   accounts: "http://localhost:8000/api/fees/accounts/",
   attendance: "http://localhost:8000/api/attendance/",
+  pendingRegistrations:
+    "http://localhost:8000/api/auth/pending-registrations/",
 };
 
 const getList = (data) =>
@@ -24,21 +26,26 @@ const getList = (data) =>
 
 const today = () => {
   const d = new Date();
+
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
 const validDate = (value) => {
   if (!value) return null;
+
   const date = new Date(value);
+
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
 const isRecent = (value) => {
   const date = validDate(value);
+
   if (!date) return false;
 
   const now = new Date();
   const start = new Date(now);
+
   start.setDate(start.getDate() - 7);
   start.setHours(0, 0, 0, 0);
 
@@ -47,6 +54,7 @@ const isRecent = (value) => {
 
 const formatTime = (value) => {
   const date = validDate(value);
+
   if (!date) return "Recently";
 
   if (date.toDateString() === new Date().toDateString()) {
@@ -59,9 +67,15 @@ const formatTime = (value) => {
   return date.toLocaleDateString();
 };
 
-const buildNotifications = (students, accounts, attendance) => {
+const buildNotifications = (
+  students,
+  accounts,
+  attendance,
+  registrations
+) => {
   const result = [];
 
+  // STUDENT ADMISSION NOTIFICATIONS
   students.forEach((student) => {
     const date =
       student.joining_date ||
@@ -80,6 +94,7 @@ const buildNotifications = (students, accounts, attendance) => {
     });
   });
 
+  // PENDING FEE NOTIFICATIONS
   accounts.forEach((account) => {
     const status = String(account.status || "").toLowerCase();
     const balance = Number(account.balance || 0);
@@ -95,7 +110,9 @@ const buildNotifications = (students, accounts, attendance) => {
       account.student_name ||
       account.student_details?.name ||
       account.student?.name ||
-      (typeof account.student === "string" ? account.student : null) ||
+      (typeof account.student === "string"
+        ? account.student
+        : null) ||
       "A student";
 
     result.push({
@@ -108,8 +125,10 @@ const buildNotifications = (students, accounts, attendance) => {
     });
   });
 
+  // ATTENDANCE NOTIFICATIONS
   attendance.forEach((record) => {
     const status = String(record.status || "").toLowerCase();
+
     if (!["absent", "late"].includes(status)) return;
 
     const student = students.find(
@@ -129,7 +148,9 @@ const buildNotifications = (students, accounts, attendance) => {
 
     result.push({
       id: `attendance-${record.id}`,
-      title: status === "absent" ? "Student Absent" : "Late Attendance",
+      title: status === "absent"
+        ? "Student Absent"
+        : "Late Attendance",
       message:
         status === "absent"
           ? `${studentName} is marked absent today.`
@@ -138,6 +159,27 @@ const buildNotifications = (students, accounts, attendance) => {
       time: formatTime(record.date || record.created_at),
       sortDate:
         validDate(record.date || record.created_at)?.getTime() || 0,
+    });
+  });
+
+  // NEW ADMIN REGISTRATION NOTIFICATIONS
+  registrations.forEach((registration) => {
+    result.push({
+      id: `admin-registration-${registration.id}`,
+      title: "New Admin Registration",
+      message: `${registration.full_name} requested admin access for ${registration.institute_name}.`,
+      type: "admin-registration",
+      time: formatTime(registration.created_at),
+      sortDate:
+        validDate(registration.created_at)?.getTime() || 0,
+      registrationId: registration.id,
+      details: {
+        full_name: registration.full_name,
+        username: registration.username,
+        email: registration.email,
+        phone: registration.phone,
+        institute_name: registration.institute_name,
+      },
     });
   });
 
@@ -152,24 +194,40 @@ export function NotificationProvider({ children }) {
   const refreshNotifications = useCallback(async () => {
     try {
       const responses = await Promise.all([
-         fetch(API.students, { credentials: "include" }),
-         fetch(API.accounts, { credentials: "include" }),
-         fetch(`${API.attendance}?date=${today()}`, {
-         credentials: "include",
-         }),
+        fetch(API.students, {
+          credentials: "include",
+        }),
+        fetch(API.accounts, {
+          credentials: "include",
+        }),
+        fetch(`${API.attendance}?date=${today()}`, {
+          credentials: "include",
+        }),
+        fetch(API.pendingRegistrations, {
+          credentials: "include",
+        }),
       ]);
 
       if (responses.some((response) => !response.ok)) {
-        throw new Error("Unable to load notification APIs.");
+        throw new Error(
+          "Unable to load notification APIs. Check admin login and API permissions."
+        );
       }
 
-      const [studentsData, accountsData, attendanceData] =
-        await Promise.all(responses.map((response) => response.json()));
+      const [
+        studentsData,
+        accountsData,
+        attendanceData,
+        registrationsData,
+      ] = await Promise.all(
+        responses.map((response) => response.json())
+      );
 
       const generated = buildNotifications(
         getList(studentsData),
         getList(accountsData),
-        getList(attendanceData)
+        getList(attendanceData),
+        getList(registrationsData.requests)
       );
 
       setNotifications((previous) => {
@@ -188,7 +246,8 @@ export function NotificationProvider({ children }) {
       setError("");
     } catch (err) {
       console.error("Notification refresh failed:", err);
-      setError("Could not load notifications from Django.");
+
+      setError(err.message || "Could not load notifications from Django.");
     } finally {
       setLoading(false);
     }
@@ -196,26 +255,34 @@ export function NotificationProvider({ children }) {
 
   useEffect(() => {
     refreshNotifications();
-     
+
     const interval = setInterval(refreshNotifications, 30000);
+
     return () => clearInterval(interval);
   }, [refreshNotifications]);
 
   const markRead = (id) => {
     setNotifications((items) =>
       items.map((item) =>
-        item.id === id ? { ...item, unread: false } : item
+        item.id === id
+          ? { ...item, unread: false }
+          : item
       )
     );
   };
 
   const markAllRead = () => {
     setNotifications((items) =>
-      items.map((item) => ({ ...item, unread: false }))
+      items.map((item) => ({
+        ...item,
+        unread: false,
+      }))
     );
   };
 
-  const unreadCount = notifications.filter((item) => item.unread).length;
+  const unreadCount = notifications.filter(
+    (item) => item.unread
+  ).length;
 
   return (
     <NotificationContext.Provider

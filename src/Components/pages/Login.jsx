@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
@@ -86,9 +86,20 @@ function Login() {
       }
 
       // Django has authenticated the user and created a session.
-      sessionStorage.setItem("isAuthenticated", "true");
-      navigate("/dashboard", { replace: true });
-    
+// Verify the Django session before opening dashboard.
+const checkResponse = await fetch(`${API_URL}check/`, {
+  method: "GET",
+  credentials: "include",
+});
+
+const authData = await checkResponse.json();
+
+if (!checkResponse.ok || !authData.authenticated) {
+  throw new Error("Login session could not be verified.");
+}
+
+sessionStorage.setItem("isAuthenticated", "true");
+navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(
         err.message === "Failed to fetch"
@@ -143,6 +154,12 @@ function Login() {
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
+            <div className="text-center mt-3">
+            Don't have an account?{" "}
+           <Link to="/register" className="text-decoration-none fw-bold">
+           Sign Up
+           </Link>
+         </div>
           </Form>
         </Card.Body>
       </Card>

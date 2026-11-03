@@ -17,6 +17,7 @@ import Timetable from "./Components/pages/Timetable.jsx";
 import Examinations from "./Components/pages/Examinations.jsx";
 import Results from "./Components/pages/Results.jsx";
 import Login from "./Components/pages/Login.jsx";
+import Register from "./Components/pages/Register.jsx";
 
 function Layout() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function Layout() {
         <Route path="/timetable" element={<Timetable />} />
         <Route path="/examinations" element={<Examinations />} />
         <Route path="/results" element={<Results />} />
+        <Route path="/register" element={<Register />} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
