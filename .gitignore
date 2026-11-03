@@ -50,3 +50,5 @@ db.sqlite3
 # Additional protection
 *.sqlite3
 .env
+backend/db_backup_before_render.sqlite3
+backend/edumanage_backup.json
