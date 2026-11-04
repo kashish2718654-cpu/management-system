@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
-
+import API_BASE_URL from "../../api.js";
 import {
   Container,
   Row,
@@ -28,7 +28,7 @@ import {
 
 import "./Students.css";
 
-const API_URL =  "http://localhost:8000/api/students/";
+const API_URL = `${API_BASE_URL}/api/students/`;
 
 // Read Django CSRF cookie for POST, PATCH and DELETE requests.
 function getCookie(name) {

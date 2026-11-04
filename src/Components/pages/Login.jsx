@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
+import API_BASE_URL from "../../api.js";
 
-
-const API_URL = "http://localhost:8000/api/auth/";
+const API_URL = `${API_BASE_URL}/api/auth/`;
 
 function getCookie(name) {
   const cookies = document.cookie.split(";");
