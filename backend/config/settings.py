@@ -39,6 +39,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://management-system-alpha-nine.vercel.app",
+    "https://manage-frontend-gamma.vercel.app",
 ]
 
 
@@ -46,6 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://management-system-alpha-nine.vercel.app",
+    "https://manage-frontend-gamma.vercel.app",
 ]
 CSRF_COOKIE_HTTPONLY = False
 
