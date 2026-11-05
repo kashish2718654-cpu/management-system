@@ -8,6 +8,19 @@ class Student(models.Model):
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
     email = models.EmailField(blank=True)
+
+    # Assigned Teacher Details
+    assigned_teacher = models.CharField(
+        max_length=100,
+        blank=True,
+        default=""
+    )
+
+    teacher_email = models.EmailField(
+        blank=True,
+        default=""
+    )
+
     course = models.CharField(max_length=100)
     batch = models.CharField(max_length=50, default="Morning")
     joining_date = models.DateField()
