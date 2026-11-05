@@ -37,7 +37,23 @@ function getCookie(name) {
     .find((item) => item.startsWith(`${name}=`));
   return cookie ? decodeURIComponent(cookie.split("=").slice(1).join("=")) : "";
 }
+async function getCsrfToken() {
+  const response = await fetch(
+    `${API_BASE_URL}/api/auth/csrf/`,
+    {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    }
+  );
 
+  if (!response.ok) {
+    throw new Error("Unable to get CSRF token.");
+  }
+
+  const data = await response.json();
+  return data.csrfToken;
+}
 const emptyForm = {
   name: "",
   phone: "",
@@ -192,13 +208,13 @@ function Students() {
         ? `${API_URL}${editingStudent.databaseId}/`
         : API_URL;
 
-      const csrfToken = getCookie("csrftoken");
+      const csrfToken = await getCsrfToken();
       const response = await fetch(url, {
         method: isEditing ? "PATCH" : "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
+          "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify(studentData),
       });
@@ -230,43 +246,45 @@ function Students() {
   }
 
   // Delete student from database
-  async function handleDelete(student) {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${student.name}?`
+async function handleDelete(student) {
+  const confirmed = window.confirm(
+    `Are you sure you want to delete ${student.name}?`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const csrfToken = await getCsrfToken();
+
+    const response = await fetch(
+      `${API_URL}${student.databaseId}/`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      }
     );
 
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch(
-        `${API_URL}${student.databaseId}/`,
-        {
-          method: "DELETE",
-          credentials: "include",
-          headers: {
-            ...(getCookie("csrftoken") ? { "X-CSRFToken": getCookie("csrftoken") } : {}),
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Could not delete student.");
-      }
-
-      setStudents((previous) =>
-        previous.filter(
-          (item) => item.databaseId !== student.databaseId
-        )
-      );
-
-      if (viewingStudent?.databaseId === student.databaseId) {
-        setViewingStudent(null);
-      }
-    } catch (error) {
-      console.error("Delete error:", error);
-      alert("Could not delete student. Check the Django server.");
+    if (!response.ok) {
+      throw new Error("Could not delete student.");
     }
+
+    setStudents((previous) =>
+      previous.filter(
+        (item) => item.databaseId !== student.databaseId
+      )
+    );
+
+    if (viewingStudent?.databaseId === student.databaseId) {
+      setViewingStudent(null);
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    alert("Could not delete student. Check the Django server.");
   }
+}
 
   return (
     <div className="students-page">
